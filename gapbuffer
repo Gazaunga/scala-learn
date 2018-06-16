@@ -1,0 +1,96 @@
+// Copyright 2009, Mark C. Chu-Carroll
+package com.scienceblogs.goodmath.apex.buffer
+
+class GapBuffer(size : Int) {
+  var _buf : Array[Char] = new Array[Char](size)
+  var _size = size
+  var _presize = 0;
+  var _postsize = 0;
+
+  /**
+   * Move the cursor one character forward.
+   */
+  def stepCursorForward() = {
+    if (_postsize > 0) {
+      _buf(_presize) = _buf(_size - _postsize)
+      _presize = _presize + 1
+      _postsize = _postsize + 1
+    }
+  }
+
+  /**
+   * Move the cursor one character backward.
+   */
+  def stepCursorBackward() = {
+    if (_presize > 0) {
+      val c = _buf(_presize - 1) 
+      _buf(_size - _postsize - 1) = c
+      _postsize = _postsize + 1
+      _presize = _presize - 1
+    }
+  }
+
+  /**
+   * Move the cursor.
+   * @param distance the distance to move the cursor.
+   */
+  def moveCursor(distance : Int) = {
+    if (distance > 0) {
+      for (i <- 0 until distance) {
+         stepCursorForward()
+      }
+    } else {
+      val d = - distance
+      for (i <- 0 until d) {
+        stepCursorBackward()
+      }
+    }
+  }
+
+  /**
+   * Move the cursor to a specific position.
+   * @param loc the desired cursor position.
+   */
+  def moveCursorTo(loc : Int) = {
+    moveCursor(loc - _presize)
+  }
+
+  /**
+   * Insert a character immediately after the cursor position.
+   * @param c the character to insert.
+   */
+  def insertChar(c : Char) = {
+    if (_presize + _postsize == _size) {
+      expand()
+    }
+    _buf(_presize) = c
+    _presize = _presize + 1
+  }
+
+  /**
+   * Insert a string after the cursor position, and advance
+   * the cursor to the position after the inserted string.
+   * @param s the string to insert
+   */  
+  def insertString(s : String) = {
+    for (i <- 0 until s.size) {
+      insertChar(s.charAt(i))
+    }
+  }
+
+  /**
+   * Double the size of the character storage buffer.
+   */
+  def expand() = {
+    val newsize = _size * 2
+    var newbuf = new Array[Char](newsize)
+    for (i <- 0 until _presize) {
+      newbuf(i) = _buf(i)
+    }
+    for (i <- 0 until _postsize) {
+      newbuf(newsize - i - 1) = _buf(_size - i - 1)
+    }
+    _buf = newbuf
+    _size = newsize
+  }
+}
