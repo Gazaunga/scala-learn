@@ -1,0 +1,11 @@
+#!/usr/bin/env scala
+
+# person with a name and age
+
+class Person(var name: String, var age: String) {
+
+  def greet(): Unit = {
+println("Happy birthday %s, I can't believe you are %s today." )
+}
+
+}
